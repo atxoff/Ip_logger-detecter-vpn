@@ -18,3 +18,6 @@ Descendre et prendre le `API Key` et le mettre a la place de `YOUR_VPNAPI_IO_KEY
 **2.** Supprimez le `index2.html` <br>
 **3.** Aller dans le `.htdocs` puis inserez le `index.html` et le `styles.css` avec les modification (Mettre a jour le code). <br>
 **4.** Enregistrez et attendez que votre site se mettent en ligne ! <br>
+
+
+*Si vous êtes un developpeur debutant ,changez la page comme vous voulez (html et css)*
